@@ -177,10 +177,6 @@ module.exports = function RedditAPI(conn) {
         );
       }
     },
-    ////////
-/*In the reddit.js API, add a createSubreddit(sub, callback) function. It should take a subreddit object which 
-contains a name and optional description property. It should insert the new subreddit, and either return an error 
-or the newly created subreddit. You can take some inspiration from the createPost function which operates in a similar way :)*/
     createSubreddit: function (sub, callback){
     conn.query(
         'INSERT INTO subreddits (id, name, description, createdAt) VALUES (?, ?, ?, ?)', [sub.id, sub.name, sub.description, new Date()],
@@ -201,9 +197,24 @@ or the newly created subreddit. You can take some inspiration from the createPos
               })
           }
         })
+    },
+    //////
+/*In the reddit.js API, add a getAllSubreddits(callback) function. It should return the list of all subreddits, 
+    ordered by the newly created one first.*/
+    getAllSubreddits: function (callback){
+     conn.query(
+      'SELECT name, description, createdAt from subreddits ORDER BY subreddits.createdAt DESC', function (err, result){
+        if(err){
+          callback(err);
+        }
+        else{
+          callback(null, result);
+        }
+      }
+       )
+     
+      
     }
-
-    
     
     ///
   }
