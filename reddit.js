@@ -1,6 +1,7 @@
 var bcrypt = require('bcrypt');
 var HASH_ROUNDS = 10;
 
+
 module.exports = function RedditAPI(conn) {
   return {
     createUser: function(user, callback) {
@@ -95,9 +96,10 @@ module.exports = function RedditAPI(conn) {
       var offset = (options.page || 0) * limit;
       
       conn.query(`
-        SELECT id, title, url, userId, createdAt, updatedAt
+        SELECT posts.id, posts.title, posts.url, posts.userId, posts.createdAt, posts.updatedAt, users.id, users.username, users.createdAt, users.updatedAt
         FROM posts
-        ORDER BY createdAt DESC
+        JOIN users ON users.id = posts.userId
+        ORDER BY posts.id DESC
         LIMIT ? OFFSET ?`
         , [limit, offset],
         function(err, results) {
@@ -105,10 +107,88 @@ module.exports = function RedditAPI(conn) {
             callback(err);
           }
           else {
-            callback(null, results);
+// var kvArray = [{key:1, value:10}, {key:2, value:20}, {key:3, value: 30}];
+// var reformattedArray = kvArray.map(function(obj){ 
+//   var rObj = {};
+//   rObj[obj.key] = obj.value;
+//   return rObj;
+// });
+              
+            var mappedResults = results.map(function(obj){
+              
+              
+              return {
+                id: obj.id,
+                title: obj.title,
+                url:obj.url,
+                createdAt:obj.createdAt,
+                updatedAt:obj.updatedAt,
+                userId: obj.userId,
+                user: { id : obj.id,
+                      username: obj.username,
+                      createdAt: obj.createdAt,
+                      updatedAt: obj.updatedAt
+                }
+              }
+            })
+              
+            callback(null, mappedResults);
+              
+          
+            
           }
         }
       );
-    }
-  }
+    },
+    // getAllPostsForUser: function(userId, options, callback) {
+    //   if (!callback) {
+    //     callback = options;
+    //     options = {};
+    //   }
+    //   else {
+    //     var limit = options.numPerPage || 25; // if options.numPerPage is "falsy" then use 25
+    //     var offset = (options.page || 0) * limit;
+    //     conn.query(`
+    //         SELECT posts.title, posts.url, posts.userId, users.username
+    //         FROM posts
+    //         JOIN users ON users.id = posts.userId 
+    //         WHERE userId = userId
+    //         ORDER BY posts.createdAt DESC
+    //         LIMIT ? OFFSET ?`, [limit, offset],
+    //       function(err, results) {
+    //         if (err) {
+    //           callback(err);
+    //         }
+    //         else {
+    //           callback(null, results);
+    //         }
+    //       }
+    //     );
+    //   }
+    // },
+    
+    // //getSinglePost: function (postId, callback) {
+    //   if (!callback) {
+    //     console.log("there was an error");
+    //   }
+    //   else {
+    //     conn.query(`
+    //         SELECT id, title, url, userId
+    //         FROM posts
+    //         JOIN users ON users.id = posts.userId 
+    //         WHERE posts.id = posts.id
+    //         ORDER BY posts.createdAt DESC
+    //         LIMIT ? OFFSET ?`,
+    //       function(err, results) {
+    //         if (err) {
+    //           callback(err);
+    //         }
+    //         else {
+    //           callback(null, results);
+    //         }
+    //       }
+    //     );
+    //   }
+    // }
+}
 }
