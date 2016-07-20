@@ -155,8 +155,7 @@ module.exports = function RedditAPI(conn) {
         );
       
     },
-
-   getSinglePost: function (postId, callback) {
+    getSinglePost: function (postId, callback) {
       if (!callback) {
         console.log("there was an error");
       }
@@ -177,7 +176,35 @@ module.exports = function RedditAPI(conn) {
           }
         );
       }
-    }
+    },
     ////////
+/*In the reddit.js API, add a createSubreddit(sub, callback) function. It should take a subreddit object which 
+contains a name and optional description property. It should insert the new subreddit, and either return an error 
+or the newly created subreddit. You can take some inspiration from the createPost function which operates in a similar way :)*/
+    createSubreddit: function (sub, callback){
+    conn.query(
+        'INSERT INTO subreddits (id, name, description, createdAt) VALUES (?, ?, ?, ?)', [sub.id, sub.name, sub.description, new Date()],
+        function(err, result) {
+          if (err) {
+            callback(err);
+          }
+          else {
+            conn.query(
+              'SELECT id, name, description, createdAt FROM subreddits WHERE id = ?', [result.insertId],
+              function(err, result) {
+                if (err) {
+                  callback(err);
+                }
+                else {
+                  callback(null, result);
+                }
+              })
+          }
+        })
+    }
+
+    
+    
+    ///
   }
 }
