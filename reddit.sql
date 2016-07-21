@@ -72,7 +72,6 @@ INSERT INTO subreddits (name, description, createdAt) VALUES
 ('wtf', 'for NSFL content', "2016-07-14");
 
 
-
 --Adding the Step 2
 
 ALTER TABLE posts
