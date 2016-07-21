@@ -83,8 +83,6 @@ module.exports = function RedditAPI(conn) {
         }
       );
     },
-    //In the reddit.js API, modify the getAllPosts function to return the full subreddit associated with each post. 
-    //You will have to do an extra JOIN to accomplish this.
     getAllPosts: function(options, callback) {
       if (!callback) {
         callback = options;
@@ -135,7 +133,8 @@ module.exports = function RedditAPI(conn) {
         var offset = (options.page || 0) * limit;
 
         conn.query(`
-            SELECT posts.title, posts.url, posts.userId, users.username
+            SELECT 
+              posts.title, posts.url, posts.userId, users.username
             FROM posts
             JOIN users ON posts.userId = users.id 
             WHERE posts.userId = ?
@@ -209,6 +208,70 @@ module.exports = function RedditAPI(conn) {
        )
      
       
+    },
+    createComment: function(comment, callback) {
+      
+      
+      conn.query(
+        'INSERT INTO comments (body, postId, parentId, userId) VALUES (?,?,?,?)', [comment.body, comment.postId, comment.parentId, comment.userId],
+        function(err, comment) {
+          if (err) {
+            console.log(err)
+          }
+          else {
+            console.log('I get inside the else statement');
+            conn.query(
+              'SELECT id, body, userId FROM comments WHERE id=?', [comment.insertId],
+              function(err, result) {
+                if (err) {
+                  console.log(err)
+                }
+                else {
+                  callback(null, result);
+                }
+              })
+          }
+        })
+    },
+    
+/*It should return a thread of comments in an array. The array should contain the top-level comments, and each 
+comment can optionally have a replies array. This array will contain the comments that are replies to the current 
+one. Since you will be using one LEFT JOIN per level of comment, we will limit this exercise to retrieving 3 levels of 
+comments. The comments should be sorted by their createdAt date at each level.  */  
+    
+    
+    getCommentsForPost: function(postId, callback) {
+      conn.query(
+        `SELECT id, body, createdAt, updatedAt
+        FROM comments 
+        WHERE postId = ?`, postId,
+        function(err, allcomments) {
+          if (err) {
+            console.log(err)
+          }
+          else {
+            var mappedAllComments = allcomments.map (function (obj){
+              return {
+                id: obj.id,
+                body: obj.body,
+                createdAt: obj.createdAt,
+                updatedAt: obj.updatedAt,
+                
+                
+                replies: 'just empty for now'
+                
+                
+                
+                
+                
+              }
+            })
+            callback(null, mappedAllComments);
+          }
+        })
     }
+
+
+
   }
 }
