@@ -58,20 +58,20 @@ module.exports = function RedditAPI(conn) {
         }
       });
     },
-    createPost: function(post, callback) {
+    
+/*In the reddit.js API, modify the createPost function to take a subredditId parameter and use it.*/    
+    createPost: function(post, subID, callback) {
       conn.query(
-        'INSERT INTO posts (userId, title, url, createdAt) VALUES (?, ?, ?, ?)', [post.userId, post.title, post.url, new Date()],
+        'INSERT INTO posts (userId, title, url, createdAt, subreddits_id) VALUES (?, ?, ?, ?, ?)', [post.userId, post.title, post.url, new Date(), subID],
         function(err, result) {
           if (err) {
             callback(err);
           }
           else {
-            /*
-            Post inserted successfully. Let's use the result.insertId to retrieve
-            the post and send it to the caller!
-            */
+            console.log("i get here");
             conn.query(
-              'SELECT id,title,url,userId, createdAt, updatedAt FROM posts WHERE id = ?', [result.insertId],
+              'SELECT id, title, url, userId, createdAt, updatedAt, subreddits_id FROM posts WHERE id = ?', [result.insertId],
+              
               function(err, result) {
                 if (err) {
                   callback(err);
@@ -198,9 +198,6 @@ module.exports = function RedditAPI(conn) {
           }
         })
     },
-    //////
-/*In the reddit.js API, add a getAllSubreddits(callback) function. It should return the list of all subreddits, 
-    ordered by the newly created one first.*/
     getAllSubreddits: function (callback){
      conn.query(
       'SELECT name, description, createdAt from subreddits ORDER BY subreddits.createdAt DESC', function (err, result){
@@ -215,7 +212,5 @@ module.exports = function RedditAPI(conn) {
      
       
     }
-    
-    ///
   }
 }
