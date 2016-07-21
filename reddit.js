@@ -57,9 +57,7 @@ module.exports = function RedditAPI(conn) {
           );
         }
       });
-    },
-    
-/*In the reddit.js API, modify the createPost function to take a subredditId parameter and use it.*/    
+    },  
     createPost: function(post, subID, callback) {
       conn.query(
         'INSERT INTO posts (userId, title, url, createdAt, subreddits_id) VALUES (?, ?, ?, ?, ?)', [post.userId, post.title, post.url, new Date(), subID],
@@ -85,20 +83,20 @@ module.exports = function RedditAPI(conn) {
         }
       );
     },
+    //In the reddit.js API, modify the getAllPosts function to return the full subreddit associated with each post. 
+    //You will have to do an extra JOIN to accomplish this.
     getAllPosts: function(options, callback) {
-      // In case we are called without an options parameter, shift all the parameters manually
       if (!callback) {
         callback = options;
         options = {};
       }
       var limit = options.numPerPage || 25; // if options.numPerPage is "falsy" then use 25
       var offset = (options.page || 0) * limit;
-
       conn.query(`
-        SELECT posts.id, posts.title, posts.url, posts.userId, posts.createdAt, posts.updatedAt, users.id, users.username, users.createdAt, users.updatedAt
-        FROM posts
-        JOIN users ON users.id = posts.userId
-        ORDER BY posts.id DESC
+        SELECT username, p.title, p.url from posts as p
+        JOIN users as u on p.userId = u.id
+        JOIN subreddits as s on p.subreddits_id = s.id
+        ORDER BY p.createdAt DESC
         LIMIT ? OFFSET ?`, [limit, offset],
         function(err, results) {
           if (err) {
