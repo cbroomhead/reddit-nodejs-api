@@ -66,9 +66,6 @@ app.get('/posts', function (req, res) {
           <p>Post userId: ${post.user.username}</p>
           <p>Post created at: ${post.user.createdAt}</p>
         </li>
-        
-       
-        
         `;  
        }
        
@@ -82,12 +79,30 @@ app.get('/posts', function (req, res) {
             </ul>
         </div>
         `;        
-        
-        
         res.send(html);
         
       }
 })
+})
+
+
+app.get('/createContent', function (req, res){
+  
+  
+  var htmlform = `
+  <form action="/createContent" method="POST"> 
+  <div>
+    <input type="text" name="url" placeholder="Enter a URL to content">
+  </div>
+  <div>
+    <input type="text" name="title" placeholder="Enter the title of your content">
+  </div>
+  <button type="submit">Create!</button>
+</form>`;
+  
+  res.send(htmlform);
+  
+  
 })
 
 
