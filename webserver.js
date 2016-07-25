@@ -1,14 +1,33 @@
 var express = require('express');
 var app = express();
 
-/*Create a web server that can listen to requests for /hello?name=firstName, and respond with some HTML that says 
-<h1>Hello _name_!</h1>. For example, if a client requests /hello/John, the server should respond with <h1>Hello John!</h1
-*/
+//https://reddit-nodejs-api-cbroomhead.c9users.io/hello?name=John
+/*app.get('/user/:id', function(req, res) {
+  res.send('user ' + req.params.id);
+});*/
 
-
-app.get('/hello', function (req, res) {
-
-    res.send(`<h1>Hello ${req.query.name} </h1>`)
+app.get('/calculator/:operation/:num1/:num2', function (req, res) {
+    console.log(req.params, "THESE ARE THE PARAMS");
+    //res.send(req.params)
+    if(req.params.operation === 'add'){
+        console.log("you get this far");
+        res.send('' + (Number(req.params.num1) + Number(req.params.num2)));
+    }
+    if(req.params.operation === 'sub'){
+        console.log("you get this far");
+        res.send('' + (Number(req.params.num1) - Number(req.params.num2)));
+    }
+    if(req.params.operation === 'mult'){
+        console.log("you get this far");
+        res.send('' + (Number(req.params.num1) * Number(req.params.num2)));
+    }
+    if(req.params.operation === 'div'){
+        console.log("you get this far");
+        res.send('' + (Number(req.params.num1) / Number(req.params.num2)));
+    }
+    else{
+        res.sendStatus(400);
+    }
 });
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
