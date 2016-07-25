@@ -18,6 +18,7 @@ var redditAPI = reddit(connection);
 
 var express = require('express');
 var app = express();
+var bodyParser = require('body-parser');
 
 
 /*app.get('/calculator/:operation/:num1/:num2', function (req, res) {
@@ -45,13 +46,7 @@ var app = express();
 });*/
 
 app.get('/posts', function (req, res) {
-    //#1 call function getAllPosts /
-    //#2 create funciton callback/
-    //#3 if error, return status code /
-    //#4 if no error, show all posts in html
-    //#5 format in html (console.log always to see results format)
-    
-   redditAPI.getAllPosts ('controversial', function(err, posts) {
+  redditAPI.getAllPosts ('controversial', function(err, posts) {
       if (err) {
         console.log(err);
         res.sendStatus(403);
@@ -87,8 +82,6 @@ app.get('/posts', function (req, res) {
 
 
 app.get('/createContent', function (req, res){
-  
-  
   var htmlform = `
   <form action="/createContent" method="POST"> 
   <div>
@@ -101,19 +94,35 @@ app.get('/createContent', function (req, res){
 </form>`;
   
   res.send(htmlform);
-  
-  
 })
 
+app.use(bodyParser.urlencoded({
+    extended: false
+  }));
 
+app.post('/createContent', function(req, res) {
+
+  //console.log(req.body);
+  console.log(req.body.url);
+    console.log(req.body.title);
+  
+  redditAPI.createPost({
+    title: req.body.title,
+    url: req.body.url,
+    userId: 8
     
+  }, 4, function(err, post) {
+    if (err) {
+      console.log(err);
+    }
 
+    else {
+      //console.log(post)
+      res.send("I've got your data (I think)")
+    }
+  });
 
-
-
-
-
-
+})
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
 
