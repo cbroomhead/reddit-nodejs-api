@@ -1,9 +1,14 @@
 var express = require('express');
 var app = express();
 
-app.get('/hello', function (request, response) {
+/*Create a web server that can listen to requests for /hello?name=firstName, and respond with some HTML that says 
+<h1>Hello _name_!</h1>. For example, if a client requests /hello/John, the server should respond with <h1>Hello John!</h1
+*/
 
-   response.send('<h1>Hello world!</h1>');
+
+app.get('/hello', function (req, res) {
+
+    res.send(`<h1>Hello ${req.query.name} </h1>`)
 });
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
