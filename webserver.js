@@ -52,19 +52,18 @@ app.get('/posts', function (req, res) {
         res.sendStatus(403);
       }
       else {
-       
-       function createLi(post){
-        return `
+       function createLi(post) {
+         return `
         <li>
           <h2> Post Title: ${post.title} </h2>
           <a href="${post.url}">Go to url ${post.url}</a>
           <p>Post userId: ${post.user.username}</p>
           <p>Post created at: ${post.user.createdAt}</p>
         </li>
-        `;  
+        `;
        }
-       
-        var html = `
+
+       var html = `
         <div id="contents">
           <h1>List of contents</h1>
             <ul class="contents-list">
@@ -73,11 +72,11 @@ app.get('/posts', function (req, res) {
              }).join("")}
             </ul>
         </div>
-        `;        
-        res.send(html);
-        
-      }
-})
+        `;
+       res.send(html);
+
+       }
+       })
 })
 
 
@@ -100,25 +99,58 @@ app.use(bodyParser.urlencoded({
     extended: false
   }));
 
+app.get('/posts/:id', function(req, res) {
+      var postId = req.params.id;
+      redditAPI.getSinglePost(postId, function(err, singlePost) {
+
+        if (err) {
+          console.log(err);
+        }
+        else {
+          //res.send(singlePost[0].title);
+
+          var singleHtml = `
+        <div id="contents">
+          <h1>List of contents</h1>
+            <ul class="contents-list">
+        <li>
+          <h2> Post Title: ${singlePost[0].title} </h2>
+          <a href="${singlePost[0].url}">Go to url ${singlePost[0].url}</a>
+          <p>Post userId: ${singlePost[0].userId}</p>
+          <p>Post id: ${singlePost.id}</p>
+          
+        </li>
+          </ul>
+        </div>`;
+         
+        }
+        // console.log(singleHtml);
+         res.send(singleHtml);
+
+      })
+})
+
 app.post('/createContent', function(req, res) {
 
   //console.log(req.body);
-  console.log(req.body.url);
-    console.log(req.body.title);
+  //console.log(req);
   
   redditAPI.createPost({
     title: req.body.title,
     url: req.body.url,
+    subId: req.body.subId,
     userId: 8
     
-  }, 4, function(err, post) {
+  }, req.body.id, function(err, post) {
+
     if (err) {
       console.log(err);
     }
 
     else {
-      //console.log(post)
-      res.send("I've got your data (I think)")
+      //res.send("I've got your data (I think)") getSinglePost: function (postId, callback) 
+      res.redirect(`/posts/${post.id}`);
+      
     }
   });
 
