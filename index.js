@@ -12,9 +12,9 @@ var reddit = require('./reddit');
 
 // create a connection to our Cloud9 server
 var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'cbroomhead', 
-  password : '',
+  host: 'localhost',
+  user: 'cbroomhead',
+  password: '',
   database: 'reddit'
 });
 
@@ -23,11 +23,13 @@ var redditAPI = reddit(connection);
 //Create express app
 var app = express();
 
+app.set('view engine', 'ejs');
+
 //Middleware
 app.use(bodyParser.urlencoded({
-    extended: false
-  }));
-  
+  extended: false
+}));
+
 app.use(cookieParser())
 
 function checkLoginToken(request, response, next) {
@@ -51,30 +53,35 @@ function checkLoginToken(request, response, next) {
 }
 
 app.use(checkLoginToken);
-  
+
 
 
 //Routes
+/*****************************/
+//HOMEPAGE
+
+app.get('/', function(req, res) {
+  console.log(req.query.sorting);
+  
+  redditAPI.getAllPosts(req.query.sorting, function(err, posts) {
+    if (err) {
+      console.log(err.stack);
+      res.sendStatus(403).send("Try again later");
+    }
+    else {
+      res.render('homeview', {posts: posts})
+    }
+  })
+})
+
 
 /*****************************/
+
 //SIGNUP 
-app.get('/signup', function (req, res) {
-  
-  //console.log(res);
-  
-        var signupform = `
-  <form action="/signup" method="POST"> 
-  <h1> This is where you SIGN-UP </h1>
-  <div>
-    <input type="text" name="username" placeholder="Enter a username">
-  </div>
-  <div>
-    <input type="password" name="password" placeholder="Enter a Password">
-  </div>
-  <button type="submit">Sign Up!</button>
-</form>`;
-  
-  res.send(signupform);
+app.get('/signup', function(req, res) {
+
+  res.render('signupview')
+
 })
 
 app.post('/signup', function(req, res) {
@@ -90,30 +97,18 @@ app.post('/signup', function(req, res) {
     }
 
     else {
-        //console.log("You get into the right else.");
-        //res.send("We are creating your username and password.")
-        res.redirect(`/login`);
+      //console.log("You get into the right else.");
+      //res.send("We are creating your username and password.")
+      res.redirect(`/login`);
     }
   })
 })
 
 
 //LOGIN
-app.get('/login', function (req, res) {
-  
-  var loginform = `
-  <form action="/login" method="POST"> 
-  <h1> This is where you LOGIN </h1>
-  <div>
-    <input type="text" name="username" placeholder="Enter a username">
-  </div>
-  <div>
-    <input type="password" name="password" placeholder="Enter a Password">
-  </div>
-  <button type="submit">Login Up!</button>
-</form>`;
-  
-  res.send(loginform);
+app.get('/login', function(req, res) {
+
+  res.render('loginview')
 })
 
 app.post('/login', function(req, res) {
@@ -123,7 +118,7 @@ app.post('/login', function(req, res) {
       console.log('please' + err.stack);
     }
     else {
-     // console.log("This is the login:" + login.username + "user Id:" + login.id); //at thi spoint, the login is true. 
+      // console.log("This is the login:" + login.username + "user Id:" + login.id); //at thi spoint, the login is true. 
       //res.redirect(`/homepage`);
 
       redditAPI.createSession(login.id, function(err, token) {
@@ -142,21 +137,9 @@ app.post('/login', function(req, res) {
 })
 
 //CREATE POST
-app.get('/createPost', function (req, res) {
-  var posthtml = `
-<form action="/createPost" method="POST"> 
-  <h1> CREATE A POST </h1>
-  <div>
-    <input type="Post Title" name="posttitle" placeholder="Post Title">
-  </div>
-   <div>
-    <input type="Post URL" name="posturl" placeholder="Post Url">
-  </div>
-  <button type="submit">Submit Post</button>
-</form>
-  `
-  res.send(posthtml);
-  
+app.get('/createPost', function(req, res) {
+res.render('createpostview')
+
 })
 
 app.post('/createPost', function(request, response) {
@@ -170,16 +153,16 @@ app.post('/createPost', function(request, response) {
       title: request.body.posttitle,
       url: request.body.posturl,
     }, request.loggedInUser.id, function(err, post) {
-      if(err){
-        console.log(err)  
+      if (err) {
+        console.log(err)
       }
       else {
-        var postpage=`
+        var postpage = `
   <h1>You've submitted your post!!</h1>
   <h2> Good luck with collecting votes! </h2>
   `
-  response.send(postpage);
-      
+        response.send(postpage);
+
       }
     })
   }
@@ -190,7 +173,7 @@ app.post('/createPost', function(request, response) {
 //   var postpage=`
 //   <h1>You've displayed your </h1>
 //   `
-  
+
 // })
 
 
@@ -200,7 +183,7 @@ app.post('/createPost', function(request, response) {
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
 
 // Boilerplate code to start up the web server
-var server = app.listen(process.env.PORT, process.env.IP, function () {
+var server = app.listen(process.env.PORT, process.env.IP, function() {
   var host = server.address().address;
   var port = server.address().port;
 
@@ -217,7 +200,7 @@ var server = app.listen(process.env.PORT, process.env.IP, function () {
 //     console.log(err);
 //   }
 //   else {
-    //console.log(user)
+//console.log(user)
 //     redditAPI.createPost({
 //       title: 'Chocolate is my favorite',
 //       url: 'www.seescandy.com  ',
@@ -226,7 +209,7 @@ var server = app.listen(process.env.PORT, process.env.IP, function () {
 //       if (err) {
 //         console.log(err);
 //       }
-      
+
 //       else {
 //         console.log(post);
 //       }
@@ -368,11 +351,4 @@ var server = app.listen(process.env.PORT, process.env.IP, function () {
 
 
 
-//connection.end(); this will close the connection 
-
-
-
-
-
-
-
+//connection.end(); this will close the connection
