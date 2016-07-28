@@ -40,8 +40,7 @@ function checkLoginToken(request, response, next) {
       }
       else {
         if (user) {
-          //console.log("we get inside this else from checkLoginToken")
-          request.loggedInUser = user;
+          request.loggedInUser = user;  //user is an object with token and user Id
         }
         next();
       }
@@ -61,7 +60,7 @@ app.use(checkLoginToken);
 //HOMEPAGE
 
 app.get('/', function(req, res) {
-  console.log(req.query.sorting);
+  //console.log(req.loggedInUser);
   
   redditAPI.getAllPosts(req.query.sorting, function(err, posts) {
     if (err) {
@@ -69,13 +68,11 @@ app.get('/', function(req, res) {
       res.sendStatus(403).send("Try again later");
     }
     else {
-      res.render('homeview', {posts: posts})
+      res.render('homeview', {posts: posts, loggedIn: req.loggedInUser})
     }
   })
 })
 
-
-/*****************************/
 
 //SIGNUP 
 app.get('/signup', function(req, res) {
@@ -118,8 +115,6 @@ app.post('/login', function(req, res) {
       console.log('please' + err.stack);
     }
     else {
-      // console.log("This is the login:" + login.username + "user Id:" + login.id); //at thi spoint, the login is true. 
-      //res.redirect(`/homepage`);
 
       redditAPI.createSession(login.id, function(err, token) {
         if (err) {
@@ -128,7 +123,7 @@ app.post('/login', function(req, res) {
         else {
           console.log(login.username);
           res.cookie('SESSION', token); // the secret token is now in the user's cookies!
-          res.redirect('/createPost');
+          res.redirect('/');
         }
       });
     }
@@ -144,45 +139,67 @@ res.render('createpostview')
 
 app.post('/createPost', function(request, response) {
   if (!request.loggedInUser) {
-    // HTTP status code 401 means Unauthorized
     response.status(401).send('You must be logged in to create content!');
   }
   else {
-    console.log("the createpost post work");
+    console.log(request.loggedInUser[0].userId)
+    //var uid = request.loggedInUser[0].userId;
+    
     redditAPI.createPost({
       title: request.body.posttitle,
       url: request.body.posturl,
-    }, request.loggedInUser.id, function(err, post) {
+      userId :request.loggedInUser[0].userId
+    }, 3, function(err, post) {
       if (err) {
         console.log(err)
       }
       else {
-        var postpage = `
-  <h1>You've submitted your post!!</h1>
-  <h2> Good luck with collecting votes! </h2>
-  `
-        response.send(postpage);
+        response.redirect('/');
 
       }
     })
   }
 })
 
-//GO TO POST
-// app.get('/post', function(request, response){
-//   var postpage=`
-//   <h1>You've displayed your </h1>
-//   `
+//VOTE
 
+app.post('/vote', function(request, response) {
+
+  if (!request.loggedInUser) {
+    response.status(401).send('You must be logged in to create content!');
+  }
+  else {
+    //console.log(request.loggedInUser[0].userId)
+    redditAPI.createOrUpdateVote(request.body, request.loggedInUser[0].userId ,function(err, res){
+      if(err){
+        console.log(err)
+      }
+      else{
+        console.log("you made it this far" )
+      }
+    }
+    )
+  }
+});
+
+//LOGOUT
+
+// app.get('/logout', function (req, res){
+//   if (!req.loggedInUser) {
+//     console.log("you may not be logged in")
+//   }
+//   else {
+//   req.session.destroy();
+// var html= `<h1>Hello, still need t make sure the session is destroyed.</h1>`
+// res.send(html);
+// }
+  
 // })
-
-
-
 
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
 
-// Boilerplate code to start up the web server
+// Boilerpslate code to start up the web server
 var server = app.listen(process.env.PORT, process.env.IP, function() {
   var host = server.address().address;
   var port = server.address().port;
