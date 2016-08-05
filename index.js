@@ -3,11 +3,11 @@ var mysql = require('mysql');
 var express = require('express');
 var cookieParser = require('cookie-parser')
 var bodyParser = require('body-parser');
+var partials = require('express-partials');
+
 
 //User modules
 var reddit = require('./reddit');
-
-// load our API and pass it the connection
 
 
 // create a connection to our Cloud9 server
@@ -18,12 +18,20 @@ var connection = mysql.createConnection({
   database: 'reddit'
 });
 
+// load our API and pass it the connection
 var redditAPI = reddit(connection);
+
+//load the ejs mate for loading partials
+var engine = require('ejs-mate');
 
 //Create express app
 var app = express();
 
+app.locals.formatDate = formatDate;
+app.set('views',__dirname + '/views');
 app.set('view engine', 'ejs');
+app.engine('ejs', engine);
+
 
 //Middleware
 app.use(bodyParser.urlencoded({
@@ -40,7 +48,8 @@ function checkLoginToken(request, response, next) {
       }
       else {
         if (user) {
-          request.loggedInUser = user;  //user is an object with token and user Id
+          request.loggedInUser = user; //user is an object with token and user Id
+          response.locals.loggedIn = user;
         }
         next();
       }
@@ -53,22 +62,53 @@ function checkLoginToken(request, response, next) {
 
 app.use(checkLoginToken);
 
+app.use(express.static('public'));
 
+//Linking to the css file
+app.use('/files', express.static(__dirname + '/public'));
+
+
+
+//Helper Functions
+function formatDate(dateString) {
+  var year = new Date(dateString).getFullYear();
+  var month = new Date(dateString).getMonth();
+  var day = new Date(dateString).getDay();
+
+  if (month < 10) {
+    month = `0${month}`
+  }
+  if (day < 10) {
+    day = `0${day}`
+  }
+
+  return `${year}/${month}/${day}`
+
+}
 
 //Routes
 /*****************************/
 //HOMEPAGE
 
 app.get('/', function(req, res) {
-  //console.log(req.loggedInUser);
-  
+  if (req.query.sorting) {
+    var sort = req.query.sorting;
+  }
   redditAPI.getAllPosts(req.query.sorting, function(err, posts) {
     if (err) {
       console.log(err.stack);
       res.sendStatus(403).send("Try again later");
     }
     else {
-      res.render('homeview', {posts: posts, loggedIn: req.loggedInUser})
+      
+      
+      res.render('homeview', {
+        posts: posts,
+        loggedIn: req.loggedInUser,
+        sort: sort
+      })
+      
+
     }
   })
 })
@@ -104,6 +144,7 @@ app.post('/signup', function(req, res) {
 
 //LOGIN
 app.get('/login', function(req, res) {
+  console.log(res)
 
   res.render('loginview')
 })
@@ -121,7 +162,6 @@ app.post('/login', function(req, res) {
           res.status(500).send('an error occurred. please try again later!');
         }
         else {
-          console.log(login.username);
           res.cookie('SESSION', token); // the secret token is now in the user's cookies!
           res.redirect('/');
         }
@@ -133,22 +173,20 @@ app.post('/login', function(req, res) {
 
 //CREATE POST
 app.get('/createPost', function(req, res) {
-res.render('createpostview')
+  res.render('createpostview')
 
 })
 
-app.post('/createPost', function(request, response) {
-  if (!request.loggedInUser) {
+app.post('/createPost', function(req, response) {
+  if (!req.loggedInUser) {
     response.status(401).send('You must be logged in to create content!');
   }
   else {
-    console.log(request.loggedInUser[0].userId)
-    //var uid = request.loggedInUser[0].userId;
-    
+
     redditAPI.createPost({
-      title: request.body.posttitle,
-      url: request.body.posturl,
-      userId :request.loggedInUser[0].userId
+      title: req.body.posttitle,
+      url: req.body.posturl,
+      userId: req.loggedInUser[0].userId,
     }, 3, function(err, post) {
       if (err) {
         console.log(err)
@@ -162,39 +200,94 @@ app.post('/createPost', function(request, response) {
 })
 
 //VOTE
-
-app.post('/vote', function(request, response) {
-
-  if (!request.loggedInUser) {
-    response.status(401).send('You must be logged in to create content!');
+app.post('/vote', function(req, res) {
+  if (req.query.sort) {
+    var sort = req.query.sort;
+  }
+  if (!req.loggedInUser) {
+    res.status(401).send('You must be logged in to create content!');
   }
   else {
-    //console.log(request.loggedInUser[0].userId)
-    redditAPI.createOrUpdateVote(request.body, request.loggedInUser[0].userId ,function(err, res){
-      if(err){
+    //console.log(req.body)
+    redditAPI.createOrUpdateVote(req.body, req.loggedInUser[0].userId, function(err, voteUpdate) {
+      if (err) {
         console.log(err)
       }
-      else{
-        console.log("you made it this far" )
+      else {
+        var path = '/'; //deafult
+        if (sort) {
+          path = `/?sorting=${sort}`
+        }
+
+        res.redirect(path);
       }
-    }
-    )
+    })
   }
-});
+})
 
 //LOGOUT
+app.get('/logout', function(req, res) {
+  if (!req.loggedInUser) {
+    console.log("you may not be logged in")
+  }
+  else {
+    // console.log(req.loggedInUser)
+    var cookie = req.loggedInUser[0].token;
 
-// app.get('/logout', function (req, res){
-//   if (!req.loggedInUser) {
-//     console.log("you may not be logged in")
-//   }
-//   else {
-//   req.session.destroy();
-// var html= `<h1>Hello, still need t make sure the session is destroyed.</h1>`
-// res.send(html);
-// }
-  
-// })
+    redditAPI.deleteSession(cookie, function(err) {
+      if (err) {
+        console.log(err)
+      }
+      else {
+        res.clearCookie('SESSION').redirect('/');
+      }
+
+    })
+  }
+})
+
+app.get('/logout', function(req, res) {
+  res.render('singlepost')
+  console.log("we are getting the to .get of the comments")
+
+})
+
+//SINGLE POST PAGE
+
+app.get('/singlepost/:postId', function(req, res) {
+
+
+  redditAPI.getSinglePost(req.params.postId, function(err, post) {
+    if (err) {
+      console.log(err.stack);
+      res.sendStatus(403).send("Try again later");
+    }
+    else if (!post) {
+      res.sendStatus(404).send('Not Found');
+    }
+    else {
+      redditAPI.getCommentsForPost(req.params.postId, function(err, comments) {
+        if (err) {
+          console.log(err.stack);
+          res.sendStatus(403).send("Try again later");
+        }
+        else {
+          res.render('singlepost', {
+            comments: comments,
+            loggedIn: req.loggedInUser,
+            post: post
+          });
+        }
+      })
+
+    }
+
+  })
+
+
+})
+
+
 
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
