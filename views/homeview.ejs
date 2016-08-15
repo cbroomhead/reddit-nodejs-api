@@ -1,0 +1,112 @@
+<% layout('layout') -%>
+
+
+
+
+<body>
+    
+<div id="logo">
+    <div id="logo_antenna">
+        <img src="/files/reddit-antenna40.png" >
+    </div>
+    <div id="logo_face">
+        <div id="logo_face_rightEye">
+            <img src="/files/reddit-heart20.png">
+        </div>
+        <div id="logo_face_leftEye">
+            <img src="/files/reddit-heart20.png">
+        </div>
+        <img src="/files/reddit-face40.png">
+    </div>
+ </div>  
+ 
+ 
+        <div class="flex-title"><h1>Welcome to Reddit clone</h1>
+            </div>
+            <div class="flex-title">
+
+            <div class="flex-sorting">
+                <a href="/?sorting=top">TOP</a>
+                <a href="/?sorting=hot">HOT</a>
+                <a href="/?sorting=new">NEWEST</a>
+                <a href="/?sorting=controversial">CONTROVERSIAL</a>
+            </div>
+            <br>
+        </div> 
+        <hr>
+        <ul class="contents-list">
+            <% posts.forEach(function(post) { %>
+            <li class="flex-box1">
+            <% if (loggedIn) { %>
+        <div class='flex-smallbox'>
+            <form class="postVote" action="/vote?sort=<%=sort%>" method="post">
+            <input type="hidden" name="vote" value="1">
+            <input type="hidden" name="postId" value="<%=post.postId %>">
+            <button type="submit" class="up"><i class="em em---1 upVote"></i></button>
+            </form>
+          
+            <% if (post.votescore) { %>
+            <p id="votescore<%=post.postId%>">score:
+            <%= post.votescore %>
+            </p>
+            <% } else { %>
+            <p>score:
+            <%= 0 %>
+            </p>
+            <% } %>
+         
+            <form class="postVote" action="/vote?sort=<%=sort%>" method="post">
+            <input type="hidden" name="vote" value="-1">
+            <input type="hidden" name="postId" value="<%=post.postId %>">
+            <button type="submit" class="down"><i  class="em em--1 downVote"></i></button>
+            </form>
+            </div>
+            <% } %>
+
+            
+<div class="flex-thumbnail">
+    <% if (post.url.indexOf(".jpg") > -1) { %>
+        <A HREF="<%= post.url %>">
+        <IMG HEIGHT=100 WIDTH=100 SRC="<%= post.url %>"></A>
+    <% } else { %>
+        <IMG HEIGHT=100 WIDTH=100 SRC="https://i.ytimg.com/vi/8WtBr187rNM/maxresdefault.jpg"></A>
+    <% } %>
+</div>
+
+
+
+        <div class="flex-bigbox">    
+            <div>
+                <div>
+                    <a href="<%= post.url %>"><h2> <%= post.title %> </h2></a>
+                </div>
+                
+                <div class ="flex-elements">
+                    <div class="space-eles">
+                    <a href="/singlepost/<%= post.id %>" >Comments</a>
+                   </div>
+                   <div class="space-eles">
+                    <p>user:
+                    <%= post.user.username %>
+                    </p>
+                </div>
+                <div class="space-eles">
+                    <p>created on:
+                    <%= formatDate(post.user.createdAt) %>
+                    </p>
+                </div>    
+                    </li>
+                    <hr width=90%>
+                <% }) %>
+               
+                </ul>
+                 
+            </div>
+</div>
+</div>
+
+
+
+<script src="scripts/main.js"></script>
+</body>
+

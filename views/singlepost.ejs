@@ -1,0 +1,62 @@
+
+<% layout('layout') -%>
+<div class="flex-back"><a href="https://reddit-nodejs-api-cbroomhead.c9users.io/"> Back to Hompage </a></div>
+
+<div class="flex-box2">    
+<div class="flex-singlethumbnail">
+    <% if (post.url.indexOf(".jpg") > -1) { %>
+        <A HREF="<%= post.url %>">
+        <IMG HEIGHT=150 WIDTH=150 SRC="<%= post.url %>"></A>
+    <% } else { %>
+        <IMG HEIGHT=150 WIDTH=150 SRC="https://i.ytimg.com/vi/8WtBr187rNM/maxresdefault.jpg"></A>
+    <% } %>
+</div>
+    
+ <div class="flex-singlebigbox">  
+        <a href="" ><h2> <%= post.title %> </h2></a>
+        <a href="<%= post.url %>">
+            <p>Go to Post</p>
+        </a>
+        
+</div> 
+</div>
+
+
+<ul class="contents-list">
+    </br>
+    <hr width=90%>
+
+    <% function comment(comm) { %>
+        <li class="comment">
+            <p>
+                <%= comm.body %>
+            </p>
+            <%
+    if (comm.replies) { 
+        commentz(comm.replies);
+    }
+    %>
+        </li>
+        <% }%>
+
+            <% function commentz(comms) { %>
+                <ul class="comments">
+                    <%
+    comms.forEach(function(comm) {
+        comment(comm);
+    });
+    %>
+                </ul>
+                <% } %>
+
+                    
+
+</ul>
+
+<%= commentz(comments) %>
+
+
+    
+
+    
+

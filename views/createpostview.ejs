@@ -1,0 +1,15 @@
+<% layout('layout') -%>
+
+
+<form id="createPost" action="/createPost" method="POST"> 
+  <h1> CREATE A POST </h1>
+  <div>
+    <input id="titleinput" class="formstyling" type="Post Title" name="posttitle" placeholder="Post Title">
+  </div>
+   <div>
+    <input id="urlinput" class="formstyling" type="Post URL" name="posturl" placeholder="Post Url">
+  </div>
+  <button id="suggestTitle" >Suggest Title</button>
+  
+  <button type="submit">Submit Post</button>
+</form>

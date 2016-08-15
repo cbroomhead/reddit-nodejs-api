@@ -21,12 +21,12 @@ var app = express();
 var bodyParser = require('body-parser');
 
 
-/*app.get('/calculator/:operation/:num1/:num2', function (req, res) {
+app.get('/calculator/:operation/:num1/:num2', function (req, res) {
     console.log(req.params, "THESE ARE THE PARAMS");
     //res.send(req.params)
     if(req.params.operation === 'add'){
         console.log("you get this far");
-        res.send('' + (Number(req.params.num1) + Number(req.params.num2)));
+        res.send('' + (parseInt(req.params.num1) + parseInt(req.params.num2)));
     }
     if(req.params.operation === 'sub'){
         console.log("you get this far");
@@ -43,13 +43,13 @@ var bodyParser = require('body-parser');
     else{
         res.sendStatus(400);
     }
-});*/
+});
 
 app.get('/posts', function (req, res) {
   redditAPI.getAllPosts ('controversial', function(err, posts) {
       if (err) {
-        console.log(err);
-        res.sendStatus(403);
+        console.log(err.stack);
+        res.sendStatus(403).send("Try again later");
       }
       else {
        function createLi(post) {
@@ -104,11 +104,10 @@ app.get('/posts/:id', function(req, res) {
       redditAPI.getSinglePost(postId, function(err, singlePost) {
 
         if (err) {
-          console.log(err);
+          res.status(500).send("try again later");
+          console.log(err.stack);
         }
         else {
-          //res.send(singlePost[0].title);
-
           var singleHtml = `
         <div id="contents">
           <h1>List of contents</h1>
@@ -124,7 +123,6 @@ app.get('/posts/:id', function(req, res) {
         </div>`;
          
         }
-        // console.log(singleHtml);
          res.send(singleHtml);
 
       })
@@ -148,6 +146,7 @@ app.post('/createContent', function(req, res) {
     }
 
     else {
+      
       //res.send("I've got your data (I think)") getSinglePost: function (postId, callback) 
       res.redirect(`/posts/${post.id}`);
       

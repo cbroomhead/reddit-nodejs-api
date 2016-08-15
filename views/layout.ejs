@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Reddit Clone</title>
+
+   <link href="/files/reddit-myicon.ico" rel="icon" type="image/x-icon" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link type="text/css" rel="stylesheet" href="/files/reddit.css" />
+    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    
+</head>
+
+<body>
+
+            
+<div class="flex-title topmenu">
+
+    <div class="flex-box1">
+        <% if (loggedIn) { %>
+            <form action="/logout">
+                <input type="submit" value="Logout">
+            </form>
+            <% } else { %>
+                <form action="/login">
+                    <input id="login" type="submit" value="Login">
+                </form>
+                <% } %>
+                    <% if (loggedIn) { %>
+                        <form action="/createPost">
+                            <input type="submit" value="Submit Post">
+                        </form>
+                        <% } else { %>
+                            <form>
+                                <input id="signup" type="submit" value="Sign up!">
+                            </form>
+                            <% } %>
+    
+    <br>
+</div>
+            
+    <main>
+        <%- body -%>
+    </main>
+    
+    <div id="modal">
+    <div class="animated pulse">
+        <div align="center">
+          <form id="loginSubmit">
+            <h2>  Please type in your username and password. </h2>
+            <div>
+                <p>Enter a username</p>
+              <input class="formstyling" type="text" name="username" placeholder="something original">
+            </div>
+            <div>
+                <p>Enter a password</p>
+              <input class="formstyling" type="password" name="password" placeholder="shh...super secret">
+            </div>
+            <button type="submit">Login</button>
+          </form>
+        </div>
+    </div>
+    </div>
+    
+     <div id="overlay"></div>
+    
+    <div id="modal2">  
+             
+        <form id="signupSubmit">
+            <h2> Please sign up through the following form. </h2>
+            <div>
+                <p>Your username</p>
+                <input class="formstyling" type="text" name="username" placeholder="username goes here">
+            </div>
+            <div>
+                <p>Your password</p>
+                <input class="formstyling" type="password" name="password" placeholder="password goes here">
+            </div>
+            <button type="submit">Create Account</button>
+        </div>
+    
+    <footer>&copy; 2016 celine!</footer>
+
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="scripts/main.js"></script>
+
+
+</html>

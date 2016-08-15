@@ -11,6 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^0.8.6",
-    "mysql": "^2.10.2"
+    "cheerio": "^0.20.0",
+    "ejs-mate": "^2.3.0",
+    "express": "^4.14.0",
+    "mysql": "^2.10.2",
+    "request": "^2.74.0"
   }
 }

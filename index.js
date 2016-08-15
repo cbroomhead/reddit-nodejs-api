@@ -4,6 +4,8 @@ var express = require('express');
 var cookieParser = require('cookie-parser')
 var bodyParser = require('body-parser');
 var partials = require('express-partials');
+var cheerio = require('cheerio');
+var request = require("request");
 
 
 //User modules
@@ -134,9 +136,7 @@ app.post('/signup', function(req, res) {
     }
 
     else {
-      //console.log("You get into the right else.");
-      //res.send("We are creating your username and password.")
-      res.redirect(`/login`);
+      res.status(200).send('success');
     }
   })
 })
@@ -150,20 +150,21 @@ app.get('/login', function(req, res) {
 })
 
 app.post('/login', function(req, res) {
-
+  
+  console.log(req.body);
+  
   redditAPI.checkLogin(req.body.username, req.body.password, function(err, login) {
-    if (err) {
-      console.log('please' + err.stack);
+    if (err || !login) {
+      res.send('error')
     }
     else {
-
       redditAPI.createSession(login.id, function(err, token) {
         if (err) {
-          res.status(500).send('an error occurred. please try again later!');
+          res.send('error');
         }
         else {
           res.cookie('SESSION', token); // the secret token is now in the user's cookies!
-          res.redirect('/');
+          res.status(200).send('success');
         }
       });
     }
@@ -171,15 +172,16 @@ app.post('/login', function(req, res) {
 
 })
 
+
 //CREATE POST
 app.get('/createPost', function(req, res) {
   res.render('createpostview')
 
 })
 
-app.post('/createPost', function(req, response) {
+app.post('/createPost', function(req, res) {
   if (!req.loggedInUser) {
-    response.status(401).send('You must be logged in to create content!');
+    res.status(401).send('You must be logged in to create content!');
   }
   else {
 
@@ -192,12 +194,14 @@ app.post('/createPost', function(req, response) {
         console.log(err)
       }
       else {
-        response.redirect('/');
-
+        //response.redirect('/');
+      res.status(200).send('success')
+      
       }
     })
   }
 })
+
 
 //VOTE
 app.post('/vote', function(req, res) {
@@ -214,16 +218,27 @@ app.post('/vote', function(req, res) {
         console.log(err)
       }
       else {
-        var path = '/'; //deafult
-        if (sort) {
-          path = `/?sorting=${sort}`
-        }
+        redditAPI.getVotesForPost(req.body.postId, function (err, response){
+          if(err){
+            res.send(err);
+          }
+          else {
+            res.send({votescore: response});
+          }
+        })
+        
+        
+        // var path = '/'; //deafult
+        // if (sort) {
+        //   path = `/?sorting=${sort}`
+        // }
 
-        res.redirect(path);
+        // res.redirect(path);
       }
     })
   }
 })
+
 
 //LOGOUT
 app.get('/logout', function(req, res) {
@@ -251,6 +266,7 @@ app.get('/logout', function(req, res) {
   console.log("we are getting the to .get of the comments")
 
 })
+
 
 //SINGLE POST PAGE
 
@@ -288,8 +304,35 @@ app.get('/singlepost/:postId', function(req, res) {
 })
 
 
+//SUGGEST TITLE
+
+app.post('/suggestTitle', function (req, res) {
+
+  request(req.body.url, function(err, html){
+    if(err){
+      console.log(err);
+    }
+    else{
+        var $ = cheerio.load(html.body);
+        res.send($('title').text())
+    }   
+  })
+})
 
 
+
+
+//SECRET PAGE
+app.get('/secret', function(req, res) {
+  if (!req.loggedInUser) {
+    console.log("you may not be logged in");
+  }
+  else {
+        res.render('secretview');
+      }
+})
+
+/*****************************/
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
 
 // Boilerpslate code to start up the web server
