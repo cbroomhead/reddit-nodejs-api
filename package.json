@@ -2,7 +2,8 @@
   "name": "reddit-nodejs-api",
   "version": "1.0.0",
   "engines": {
-    "node": "4.4.5"
+    "node": "4.4.5", 
+    "npm": "2.15.5"
   },
   "description": "DecodeMTL workshop to build a Reddit API with MySQL",
   "main": "index.js",
