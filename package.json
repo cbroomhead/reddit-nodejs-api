@@ -3,13 +3,16 @@
   "version": "1.0.0",
   "engines": {
     "node": "4.4.5", 
-    "npm": "2.15.5"
+    "npm": "2.15.5", 
+    "nodemon":  "1.10.2"
   },
   "description": "DecodeMTL workshop to build a Reddit API with MySQL",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1", 
-    "start": "node index.js"
+    "start": "nodemon webserver.js",
+    "heroku-prebuild": "echo This runs before Heroku installs your dependencies.",
+    "heroku-postbuild": "echo This runs afterwards."
   },
   "keywords": [],
   "author": "Ziad Saab <ziad.saab@gmail.com>",
