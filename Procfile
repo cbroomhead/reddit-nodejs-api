@@ -1,2 +1,2 @@
-web: nodemon webserver.js
-bot: node webserver.js
+web: node index.js
+bot: node index.js

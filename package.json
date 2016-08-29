@@ -7,10 +7,10 @@
     "nodemon":  "1.10.2"
   },
   "description": "DecodeMTL workshop to build a Reddit API with MySQL",
-  "main": "webserver.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1", 
-    "start": "nodemon webserver.js",
+    "start": "node index.js",
     "heroku-prebuild": "echo This runs before Heroku installs your dependencies.",
     "heroku-postbuild": "echo This runs afterwards."
   },
