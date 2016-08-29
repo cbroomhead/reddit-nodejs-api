@@ -135,14 +135,14 @@ $(document).ready(function() {
 
 //secret stuff
 
-var $keydown = $('#secretbody');
-$keydown.on('keydown', function(e) {
-    console.log(e);
-    e.stopPropagation()
-    e.preventDefault();
-    alert("keydown...");
+// var $keydown = $('#secretbody');
+// $keydown.on('keydown', function(e) {
+//     console.log(e);
+//     e.stopPropagation()
+//     e.preventDefault();
+//     alert("keydown...");
     
-});
+// });
 
 
 //do not delete this belongs to document ready at the top    

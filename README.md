@@ -1,3 +1,9 @@
+************INSTRUCTIONS*****************
+-- node index.js
+-- mysql-ctl start, mysql --user cbroomhead
+*****************************************
+
+
 # Reddit NodeJS API
 
 In this project, we're going to build a tiny Reddit API. But wait, don't we need to learn about

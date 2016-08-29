@@ -9,7 +9,6 @@ function createSessionToken(){
 module.exports = function RedditAPI(conn) {
   return {
     createUser: function(user, callback) {
-
       // first we have to hash the password...
       bcrypt.hash(user.password, HASH_ROUNDS, function(err, hashedPassword) {
         if (err) {
