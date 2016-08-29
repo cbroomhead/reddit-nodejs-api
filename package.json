@@ -4,7 +4,8 @@
   "description": "DecodeMTL workshop to build a Reddit API with MySQL",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1", 
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "Ziad Saab <ziad.saab@gmail.com>",
@@ -18,3 +19,5 @@
     "request": "^2.74.0"
   }
 }
+
+
