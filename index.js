@@ -1,7 +1,7 @@
 // External modules
 var mysql = require('mysql');
 var express = require('express');
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var partials = require('express-partials');
 var cheerio = require('cheerio');
