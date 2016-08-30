@@ -323,14 +323,14 @@ app.post('/suggestTitle', function (req, res) {
 
 
 //SECRET PAGE
-app.get('/secret', function(req, res) {
-  if (!req.loggedInUser) {
-    console.log("you may not be logged in");
-  }
-  else {
-        res.render('secretview');
-      }
-})
+// app.get('/secret', function(req, res) {
+//   if (!req.loggedInUser) {
+//     console.log("you may not be logged in");
+//   }
+//   else {
+//         res.render('secretview');
+//       }
+// })
 
 /*****************************/
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
