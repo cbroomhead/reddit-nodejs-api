@@ -34,13 +34,13 @@ app.set('views',__dirname + '/views');
 app.set('view engine', 'ejs');
 app.engine('ejs', engine);
 
-
+app.use(cookieParser())
 //Middleware
 app.use(bodyParser.urlencoded({
   extended: false
 }));
 
-app.use(cookieParser())
+
 
 function checkLoginToken(request, response, next) {
   if (request.cookies.SESSION) {
